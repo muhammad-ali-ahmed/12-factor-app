@@ -10,16 +10,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to Server
-        uses: appleboy/ssh-action@v1 # or v0.1.10
-        with:
-          host: "${{ secrets.STAGING_HOST }},${{ secrets.PRODUCTION_HOST }}" # List both hosts
-          username: ${{ secrets.SHARED_USER }} # using shared user
-          key: ${{ secrets.SHARED_PRIVATE_KEY }} # using shared key
-          script: |
-            bash -c '
-              cd /home/ubuntu/avoda-be/
-              git pull origin ${{ github.ref_name }}
-              /home/ubuntu/.nvm/versions/node/v22.14.0/bin/node /home/ubuntu/.nvm/versions/node/v22.14.0/bin/npm i
-              /home/ubuntu/.nvm/versions/node/v22.14.0/bin/node /home/ubuntu/.nvm/versions/node/v22.14.0/bin/pm2 restart avoda-be-${{ github.ref_name }}
-            '
+      with:
+        host: "${{ secrets.STAGING_HOST }},${{ secrets.PRODUCTION_HOST }}" # List both hosts
+        username: ${{ secrets.SHARED_USER }} # using shared user
+        key: ${{ secrets.SHARED_PRIVATE_KEY }} # using shared key
+        script: |
+        bash -c '
+          cd /home/ubuntu/avoda-be/
+          git pull origin ${{ github.ref_name }}
+          /home/ubuntu/.nvm/versions/node/v22.14.0/bin/node /home/ubuntu/.nvm/versions/node/v22.14.0/bin/npm i
+          /home/ubuntu/.nvm/versions/node/v22.14.0/bin/node /home/ubuntu/.nvm/versions/node/v22.14.0/bin/pm2 restart avoda-be-${{ github.ref_name }}
+        '
