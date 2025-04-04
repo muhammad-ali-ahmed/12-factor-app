@@ -1,42 +1,25 @@
-
 name: Deploy to Server (Staging/Production)
 
 on:
   push:
     branches:
-      - main  # Production
-      - user-count-feature # Staging
+      - main
+      - staging
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/user-count-feature' || github.ref == 'refs/heads/main'  # Only run for staging or main
     steps:
-      - name: Deploy to Staging Server
-        if: github.ref == 'refs/heads/user-count-feature'
-        uses: appleboy/ssh-action@v0.1.10
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1 # or v0.1.10
         with:
-          host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USER }}
-          key: ${{ secrets.STAGING_PRIVATE_KEY }}
+          host: "${{ secrets.STAGING_HOST }},${{ secrets.PRODUCTION_HOST }}" # List both hosts
+          username: ${{ secrets.SHARED_USER }} # using shared user
+          key: ${{ secrets.SHARED_PRIVATE_KEY }} # using shared key
           script: |
             bash -c '
               cd /home/ubuntu/avoda-be/
-              git pull origin staging
+              git pull origin ${{ github.ref_name }}
               /home/ubuntu/.nvm/versions/node/v22.14.0/bin/node /home/ubuntu/.nvm/versions/node/v22.14.0/bin/npm i
-              /home/ubuntu/.nvm/versions/node/v22.14.0/bin/node /home/ubuntu/.nvm/versions/node/v22.14.0/bin/pm2 restart avoda-be-staging
-            '
-      - name: Deploy to Production Server
-        if: github.ref == 'refs/heads/main'
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
-          key: ${{ secrets.PRODUCTION_PRIVATE_KEY }}
-          script: |
-            bash -c '
-              cd /home/ubuntu/avoda-be/
-              git pull origin main
-              /home/ubuntu/.nvm/versions/node/v22.14.0/bin/node /home/ubuntu/.nvm/versions/node/v22.14.0/bin/npm i
-              /home/ubuntu/.nvm/versions/node/v22.14.0/bin/node /home/ubuntu/.nvm/versions/node/v22.14.0/bin/pm2 restart avoda-be-production
+              /home/ubuntu/.nvm/versions/node/v22.14.0/bin/node /home/ubuntu/.nvm/versions/node/v22.14.0/bin/pm2 restart avoda-be-${{ github.ref_name }}
             '
