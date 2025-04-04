@@ -35,7 +35,7 @@ jobs:
 
       - name: Run deployment script on server
         run: |
-          ssh ${{ secrets.SSH_USER }}@$SERVER_IP "bash -c '
+          ssh ${{ secrets.SHARED_USER }}@$SERVER_IP "bash -c '
               cd /home/ubuntu/avoda-be/
               git pull origin staging
               /home/ubuntu/.nvm/versions/node/v22.14.0/bin/node /home/ubuntu/.nvm/versions/node/v22.14.0/bin/npm i
